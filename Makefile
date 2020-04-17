@@ -1,7 +1,7 @@
 ORG = projectcontour
 PROJECT = contour
 MODULE = github.com/$(ORG)/$(PROJECT)
-REGISTRY ?= projectcontour
+REGISTRY ?= iyacontrol
 IMAGE := $(REGISTRY)/$(PROJECT)
 SRCDIRS := ./cmd ./internal ./apis
 LOCAL_BOOTSTRAP_CONFIG = localenvoyconfig.yaml

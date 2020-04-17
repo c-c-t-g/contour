@@ -115,6 +115,7 @@ func registerServe(app *kingpin.Application) (*kingpin.CmdClause, *serveContext)
 	serve.Flag("accesslog-format", "Format for Envoy access logs.").StringVar(&ctx.AccessLogFormat)
 	serve.Flag("disable-leader-election", "Disable leader election mechanism.").BoolVar(&ctx.DisableLeaderElection)
 
+	serve.Flag("use-extensions-v1beta1-ingress", "Subscribe to the deprecated extensions/v1beta1.Ingress type.").BoolVar(&ctx.UseExtensionsV1beta1Ingress)
 	serve.Flag("debug", "Enable debug logging.").Short('d').BoolVar(&ctx.Debug)
 	serve.Flag("experimental-service-apis", "Subscribe to the new service-apis types.").BoolVar(&ctx.UseExperimentalServiceAPITypes)
 	return serve, ctx
@@ -212,7 +213,17 @@ func doServe(log logrus.FieldLogger, ctx *serveContext) error {
 	informerSyncList.Add(dynamicInformerFactory.ForResource(projectcontour.TLSCertificateDelegationGVR).Informer()).AddEventHandler(dynamicHandler)
 
 	informerSyncList.Add(informerFactory.Core().V1().Services().Informer()).AddEventHandler(dynamicHandler)
-	informerSyncList.Add(informerFactory.Networking().V1beta1().Ingresses().Informer()).AddEventHandler(dynamicHandler)
+	// informerSyncList.Add(informerFactory.Networking().V1beta1().Ingresses().Informer()).AddEventHandler(dynamicHandler)
+
+	// After K8s 1.13 the API server will automatically translate extensions/v1beta1.Ingress objects
+	// to networking/v1beta1.Ingress objects so we should only listen for one type or the other.
+	// The default behavior is to listen for networking/v1beta1.Ingress objects and let the API server
+	// transparently upgrade the extensions version for us.
+	if ctx.UseExtensionsV1beta1Ingress {
+		informerSyncList.Add(informerFactory.Extensions().V1beta1().Ingresses().Informer()).AddEventHandler(dynamicHandler)
+	} else {
+		informerSyncList.Add(informerFactory.Networking().V1beta1().Ingresses().Informer()).AddEventHandler(dynamicHandler)
+	}
 
 	if ctx.UseExperimentalServiceAPITypes {
 		log.Info("Enabling Experimental Service APIs types")
