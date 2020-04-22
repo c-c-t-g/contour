@@ -118,6 +118,10 @@ type serveContext struct {
 	// If the value is true, Contour will register for extensions/v1beta1.Ingress type and do
 	// the rewrite itself.
 	UseExtensionsV1beta1Ingress bool `yaml:"-"`
+
+	// Should Contour support ingress
+	// By default this value is false, meaning Contour will support ingress
+	NotSupportIngress bool `yaml:"not-support-ingress,omitempty"`
 }
 
 // newServeContext returns a serveContext initialized to defaults.
@@ -175,6 +179,7 @@ func newServeContext() *serveContext {
 		},
 		UseExperimentalServiceAPITypes: false,
 		UseExtensionsV1beta1Ingress:    false,
+		NotSupportIngress:              false,
 	}
 }
 

@@ -22,7 +22,8 @@ LOCALIP ?= $(shell ifconfig | grep inet | grep -v '::' | grep -v 127.0.0.1 | hea
 
 # Sets GIT_REF to a tag if it's present, otherwise the short rev.
 GIT_REF = $(shell git describe --tags || git rev-parse --short=8 --verify HEAD)
-VERSION ?= $(GIT_REF)
+# VERSION ?= $(GIT_REF)
+VERSION ?= v1.3.0-1
 # Used for the tag-latest action.
 # The tag-latest action will be a noop unless this is explicitly
 # set outside this Makefile, as a safety valve.
